@@ -11,6 +11,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
+import Link from "next/link";
+import Image from "next/image";
+import logo from '../../../public/logo-color.svg'
 
 interface Flashcard {
   title: string;
@@ -450,6 +453,11 @@ Ensure the response is detailed, data-driven, and realistic, considering global 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="absolute top-4 left-4">
+        <Link href="/" className="text-blue-600 hover:text-blue-800 font-medium transition">
+            <Image src={logo} alt="" className="size-14 rounded-full"/>
+        </Link>
+      </div>
       <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-xl overflow-hidden">
         {!showFlashcards ? (
           <div className="p-8" ref={formRef}>
