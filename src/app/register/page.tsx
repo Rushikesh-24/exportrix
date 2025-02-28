@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
+import { set } from "mongoose";
 
 interface Flashcard {
   title: string;
@@ -78,6 +79,7 @@ export default function BusinessForm() {
     "Transportation",
   ];
 
+  const [hs_code, setHSCode] = useState("");
   useEffect(() => {
     // Initial animation for form
     if (formRef.current && !showFlashcards) {
@@ -202,6 +204,7 @@ Ensure the response is detailed, data-driven, and realistic, considering global 
       try {
         const parsedData = JSON.parse(responseText);
         console.log(parsedData);
+        setHSCode(parsedData.analysis.hs_code);
 
         // Handle the specific JSON structure we received
         const analysisData: BusinessAnalysis =
@@ -316,6 +319,7 @@ Ensure the response is detailed, data-driven, and realistic, considering global 
 
    if(response){
       handleFreight();
+      getRoDTEPByHSCode(hs_code);
    }
     
 
@@ -327,6 +331,64 @@ Ensure the response is detailed, data-driven, and realistic, considering global 
 
   
   };
+
+  const getRoDTEPByHSCode = async (hsCode: string) => {
+    try {
+      const geminiApiKey = process.env.NEXT_PUBLIC_GEMINI_API || "";
+  
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: `Provide the RoDTEP (Remission of Duties and Taxes on Exported Products) rebate percentage for the given HS code in India. 
+  Return a JSON object with the following structure:
+  
+  interface RoDTEPResponse {
+    hs_code: string;
+    rodtep_rate: string; // Percentage as string
+    description: string; // Brief description of the product category
+  }
+  
+  HS Code: ${hsCode}
+  
+  Ensure the response is **only JSON** without markdown formatting.`
+                  }
+                ]
+              }
+            ]
+          })
+        }
+      );
+  
+      const data = await response.json();
+      console.log("Raw API Response:", data);
+  
+      if (!data.candidates || data.candidates.length === 0) {
+        throw new Error("No valid response from Gemini.");
+      }
+  
+      let responseText = data.candidates[0].content.parts[0].text;
+  
+      // Clean JSON formatting if Gemini adds markdown formatting
+      responseText = responseText.replace(/^```json\s*/, "").replace(/```\s*$/, "");
+  
+      // Parse JSON safely
+      const parsedData = JSON.parse(responseText);
+      console.log("RoDTEP Data:", parsedData);
+  
+      return parsedData;
+    } catch (error) {
+      console.error("Error fetching RoDTEP rate:", error);
+      return null;
+    }
+  };
+  
 
   const handleFreight = async () => {
     setIsLoading(true);
@@ -366,7 +428,7 @@ Ensure the response is detailed, data-driven, and realistic, considering global 
   }
   
   Expected JSON Response:
-  - A list of countries with the estimated transportation costs and delivery times for the following transport modes **from india** to these countries:
+  - A list of countries with the estimated transportation costs and delivery times for the following transport modes **from india** to these countries per kg rate:
     - **Airway**: Cost and estimated delivery time
     - **Waterway**: Cost and estimated delivery time
     - **Railway**: Cost and estimated delivery time
