@@ -11,8 +11,14 @@ export async function POST(req: NextRequest) {
         const {bussinessName,  industry, revenue, employees, description, hs_code } = await req.json();
         console.log(bussinessName, industry, revenue, employees, description, hs_code);
         const cookieStore = await cookies()
-        const authToken:any = cookieStore.get('token')?.value
-        const decodedToken = jwt.verify(authToken, process.env.JWT_SECRET!) as jwt.JwtPayload & { email: string };
+        const authToken: string | undefined = cookieStore.get('token')?.value
+        if (!authToken) {
+            return NextResponse.json(
+                { error: "Authentication token is missing" },
+                { status: 401 }
+            );
+        }
+        const decodedToken = jwt.verify(authToken, process.env.JWT_SECRET!) as unknown as jwt.JwtPayload & { email: string };
         if (!decodedToken) {
             return NextResponse.json(
                 { error: "Email is required" },
