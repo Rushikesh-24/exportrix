@@ -5,6 +5,7 @@ import { OpenAI } from "openai";
 
 export default function CompanyDataExtractor() {
   const [url, setUrl] = useState("");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [companyData, setCompanyData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 

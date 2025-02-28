@@ -3,7 +3,6 @@ import User from "@/models/user.models";
 import { connectDB } from "@/config/dbConfig";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
-import { decode } from "punycode";
 
 export async function POST(req: NextRequest) {
     try {
@@ -12,6 +11,7 @@ export async function POST(req: NextRequest) {
         const {  countries } = await req.json();
         console.log(countries)
         const cookieStore = await cookies()
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const authToken:any = cookieStore.get('token')?.value
                 const decodedToken = jwt.verify(authToken, process.env.JWT_SECRET!) as jwt.JwtPayload & { email: string };
                 if (!decodedToken) {
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Find user by email
-        let user = await User.findOne({ email:decodedToken.email });
+        const user = await User.findOne({ email:decodedToken.email });
 
         if (!user) {
             return NextResponse.json(
