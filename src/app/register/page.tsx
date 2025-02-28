@@ -312,6 +312,11 @@ Ensure the response is detailed, data-driven, and realistic, considering global 
     })
     const data1 = await response.json();
     console.log(data1); 
+
+
+   if(response){
+      handleFreight();
+   }
     
 
     toast.success(`Selected ${selectedCountries.length} countries for export!`);
@@ -319,7 +324,85 @@ Ensure the response is detailed, data-driven, and realistic, considering global 
     console.error("Error submitting countries:", error);
     toast.error("Failed to submit selected countries. Please try again.");
   }
+
+  
   };
+
+  const handleFreight = async () => {
+    setIsLoading(true);
+  
+    try {
+      const geminiApiKey = process.env.NEXT_PUBLIC_GEMINI_API || "";
+     
+  
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: `Generate a well-structured JSON response that adheres to the following interface:
+  
+  interface TransportCost {
+    country: string;
+    transport_modes: {
+      airway: {
+        cost: string;
+        estimated_time: string;
+      };
+      waterway: {
+        cost: string;
+        estimated_time: string;
+      };
+      railway: {
+        cost: string;
+        estimated_time: string;
+      };
+    };
+  }
+  
+  Expected JSON Response:
+  - A list of countries with the estimated transportation costs and delivery times for the following transport modes **from india** to these countries:
+    - **Airway**: Cost and estimated delivery time
+    - **Waterway**: Cost and estimated delivery time
+    - **Railway**: Cost and estimated delivery time
+  
+  Countries to Analyze:
+  ${JSON.stringify(selectedCountries)}
+  
+  Ensure the response is realistic, based on global logistics data, fuel costs, and distance-based estimations.`
+                  }
+                ]
+              }
+            ]
+          })
+        }
+      );
+  
+      const data = await response.json();
+      console.log("Freight Transport Costs:", data);
+      let responseText = data.candidates[0].content.parts[0].text;
+
+      // Remove the markdown code block indicators and 'json' if present
+      responseText = responseText.replace(/^```json\s*/, "");
+      responseText = responseText.replace(/```\s*$/, "");
+      console.log(responseText);
+
+      // Parse the JSON
+    
+        const parsedData = JSON.parse(responseText);
+        console.log(parsedData);
+    } catch (error) {
+      console.error("Error fetching freight data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
 
   const nextCard = () => {
     gsap.to(cardRef.current, {
