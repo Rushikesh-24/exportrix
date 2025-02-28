@@ -25,7 +25,7 @@ export default function Home() {
       });
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, );
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   
   // Refs for animation targets

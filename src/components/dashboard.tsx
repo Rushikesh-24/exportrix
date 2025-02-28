@@ -15,6 +15,14 @@ import { MarketInsights } from "./Market Insights"
 
 export default function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   const [rateData, setRateData] = useState<any>(null)
+    
+   //@ts-expect-error idk kya ha iska type
+ const handleRatesReceived = (data) => {
+   setRateData(data)
+  console.log(rateData)
+  }
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -193,7 +201,7 @@ export default function Dashboard() {
                 <TabsTrigger value="insights">Market Insights</TabsTrigger>
               </TabsList>
               <TabsContent value="product-form" className="mt-6">
-                <ProductForm />
+                <ProductForm onRatesReceived={handleRatesReceived}/>
               </TabsContent>
               <TabsContent value="export-readiness" className="mt-6">
                 <ExportReadiness />

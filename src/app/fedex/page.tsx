@@ -23,7 +23,7 @@ export default function Home() {
         }
       }, 100)
     }
-  }
+  }   
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4 md:p-8">
