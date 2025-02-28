@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   BarChart3,
+  FileCheck,
   FileText,
   Globe,
   HelpCircle,
@@ -306,6 +307,7 @@ type CertificationType = {
                 {isSidebarOpen && <span>Dashboard</span>}
               </Link>
             </li>
+            
             <li>
               <Link
                 href="#"
@@ -313,6 +315,15 @@ type CertificationType = {
               >
                 <PlusCircle className="h-5 w-5" />
                 {isSidebarOpen && <span>Add Product</span>}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/cha"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+              >
+                <FileCheck className="h-5 w-5" />
+                {isSidebarOpen && <span>CHAs</span>}
               </Link>
             </li>
             <li>

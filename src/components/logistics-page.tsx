@@ -19,6 +19,7 @@ import {
   MapPin,
   ChevronRight,
   Check,
+  FileCheck,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -180,7 +181,7 @@ export default function LogisticsPage() {
   }
 
   return (
-    <SidebarProvider>
+    <div className="flex min-h-screen bg-background">
       <div className="flex min-h-screen bg-background">
         {/* Sidebar */}
         <div
@@ -253,6 +254,15 @@ export default function LogisticsPage() {
               >
                 <PlusCircle className="h-5 w-5" />
                 {isSidebarOpen && <span>Add Product</span>}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/cha"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+              >
+                <FileCheck className="h-5 w-5" />
+                {isSidebarOpen && <span>CHAs</span>}
               </Link>
             </li>
             <li>
@@ -846,7 +856,7 @@ export default function LogisticsPage() {
           </main>
         </div>
       </div>
-    </SidebarProvider>
+    </div>
   )
 }
 
