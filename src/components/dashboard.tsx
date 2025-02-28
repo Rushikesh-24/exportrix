@@ -17,10 +17,83 @@ export default function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    const [rateData, setRateData] = useState<any>(null)
+
+
+ 
+  
     
    //@ts-expect-error idk kya ha iska type
- const handleRatesReceived = (data) => {
+ const handleRatesReceived = async(data) => {
    setRateData(data)
+   console.log("Gemini API Response:")
+   try {
+     const geminiApiKey: string = process.env.NEXT_PUBLIC_GEMINI_API || "";
+     const requestBody = {
+       contents: [
+         {
+           parts: [
+             {
+               text: `Generate a well-structured JSON response with the following format:
+ 
+ {
+  "ShippingOption":array of ShippingOption,
+   "hs_code": string
+   "RoDTEP": string
+ }
+  type ShippingOption = {
+  id: string
+  provider: string
+  logo: string
+  price: number
+  deliveryTime: string
+  features: string[]
+  recommended?: boolean
+}
+ 
+ Use the following product details:
+ ${JSON.stringify({
+   category:  data.category,
+   description: data.description,
+   dimensions: data.dimensions,
+   origin: "india",
+   productName: data.productName,
+   weight: data.weight,
+ })}
+ 
+ Ensure the response is realistic, market-driven, and considers global trade factors.`,
+             },
+           ],
+         },
+       ],
+     };
+ 
+     const response = await fetch(
+       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`,
+       {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(requestBody),
+       }
+     );
+ 
+   
+     const result = await response.json();
+     console.log('result of gemini: ',result)
+     // Get the response text and clean it
+     let responseText = result.candidates[0].content.parts[0].text;
+
+     // Remove the markdown code block indicators and 'json' if present
+     responseText = responseText.replace(/^```json\s*/, "");
+     responseText = responseText.replace(/```\s*$/, "");
+    
+     const parsedData = JSON.parse(responseText);
+       console.log(parsedData);
+   } catch (error) {
+     console.error("Error fetching data:", error);
+     
+   } finally {
+    
+   }
   console.log(rateData)
   }
 
@@ -201,7 +274,7 @@ export default function Dashboard() {
                 <TabsTrigger value="insights">Market Insights</TabsTrigger>
               </TabsList>
               <TabsContent value="product-form" className="mt-6">
-                <ProductForm onRatesReceived={handleRatesReceived}/>
+                <ProductForm onRatesReceived={handleRatesReceived} />
               </TabsContent>
               <TabsContent value="export-readiness" className="mt-6">
                 <ExportReadiness />

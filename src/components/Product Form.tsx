@@ -30,7 +30,7 @@ const generateHSCode = (category: string, name: string) => {
   return `${prefix}.${suffix.substring(0, 2)}.${suffix.substring(2, 4)}.${suffix.substring(4, 6)}`
 }
 
-export function ProductForm({ onRatesReceived }: { onRatesReceived: (data: unknown) => void }) {
+export function ProductForm({ onRatesReceived }:any) {
   const sendData = () => {
     const formData = {
       productName,
@@ -42,6 +42,7 @@ export function ProductForm({ onRatesReceived }: { onRatesReceived: (data: unkno
       description: (document.getElementById("description") as HTMLTextAreaElement).value,
     }
     onRatesReceived(formData)
+    
   }
   const [productName, setProductName] = useState("")
   const [category, setCategory] = useState("")
