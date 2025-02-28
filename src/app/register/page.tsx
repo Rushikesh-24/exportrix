@@ -189,7 +189,7 @@ Ensure the response is detailed, data-driven, and realistic, considering global 
       );
 
       const result = await response.json();
-
+      console.log('result of gemini: ',result)
       // Get the response text and clean it
       let responseText = result.candidates[0].content.parts[0].text;
 
@@ -291,26 +291,34 @@ Ensure the response is detailed, data-driven, and realistic, considering global 
     setSelectedCountries(newSelectedCountries);
   };
 
-  const submitSelectedCountries = () => {
+  const submitSelectedCountries = async() => {
+
+
+    try {
+      
+   
     // Send selected countries to backend
     console.log("Selected countries for export:", selectedCountries);
 
     // Example API call (uncomment and modify as needed)
-    /*
-    fetch('/api/submit-countries', {
+    
+    const response = await fetch('/api/submit-countries', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        businessName: businessData.name,
+      
         countries: selectedCountries 
       })
     })
-    .then(response => response.json())
-    .then(data => toast.success("Countries submitted successfully!"))
-    .catch(error => toast.error("Failed to submit countries."));
-    */
+    const data1 = await response.json();
+    console.log(data1); 
+    
 
     toast.success(`Selected ${selectedCountries.length} countries for export!`);
+  } catch (error) {
+    console.error("Error submitting countries:", error);
+    toast.error("Failed to submit selected countries. Please try again.");
+  }
   };
 
   const nextCard = () => {

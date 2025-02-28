@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Find user by email
-        let user = await User.findOne({ email: decodedToken.email });
+        const user = await User.findOne({ email: decodedToken.email });
 
         if (!user) {
             return NextResponse.json(
