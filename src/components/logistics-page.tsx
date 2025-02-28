@@ -20,6 +20,7 @@ import {
   ChevronRight,
   Check,
   FileCheck,
+  Train,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -31,15 +32,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import {
-  Sidebar,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
+import { useEffect } from "react"
 
 type ShipmentStatus = "pending" | "in-transit" | "delivered" | "delayed"
 
@@ -65,7 +58,132 @@ type LogisticsProvider = {
 }
 
 export default function LogisticsPage() {
+  const [shippingCostData, setShippingCostData] = useState<{
+    country: string;
+    transport_modes: {
+      airway: {
+        cost: string;
+        estimated_time: string;
+      };
+      waterway: {
+        cost: string;
+        estimated_time: string;
+      };
+      railway: {
+        cost: string;
+        estimated_time: string;
+      };
+    };
+  } | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [productData, setProductData] = useState<{
+    productName: string
+    category: string
+    dimensions: { length: string; width: string; height: string }
+    origin:string;
+    PriceData:{PriceData:{HSCODE:string,PriceData:[]}}
+    weight:string
+  } | null>(null)
+
+  const gatherShippingData = () => {
+    const origin = (document.getElementById("origin") as HTMLSelectElement)?.value || "india";
+    const destination = (document.getElementById("destination-country") as HTMLSelectElement)?.value || "usa";
+    const weight = (document.getElementById("shipping-weight") as HTMLInputElement)?.value || "1";
+    
+    const dimensions = {
+      length: (document.querySelector("input[placeholder='Length']") as HTMLInputElement)?.value || "10",
+      width: (document.querySelector("input[placeholder='Width']") as HTMLInputElement)?.value || "10",
+      height: (document.querySelector("input[placeholder='Height']") as HTMLInputElement)?.value || "10",
+    };
+  
+    const shippingType = (document.querySelector("input[name='shipping-type']:checked") as HTMLInputElement)?.value || "express";
+  
+    const additionalServices = {
+      insurance: (document.getElementById("insurance") as HTMLInputElement)?.checked || false,
+      tracking: (document.getElementById("tracking") as HTMLInputElement)?.checked || false,
+      customs: (document.getElementById("customs") as HTMLInputElement)?.checked || false,
+    };
+  
+    return { origin, destination, weight, dimensions, shippingType, additionalServices };
+  };
+  const handleShippingCalculation = async () => {
+    const shippingData = gatherShippingData();
+    console.log(shippingData)
+    try {
+      const geminiApiKey = process.env.NEXT_PUBLIC_GEMINI_API || "";
+     
+  
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: `Generate a well-structured JSON response that adheres to the following interface:
+  
+  interface TransportCost {
+    country: string;
+    transport_modes: {
+      airway: {
+        cost: string;
+        estimated_time: string;
+      };
+      waterway: {
+        cost: string;
+        estimated_time: string;
+      };
+      railway: {
+        cost: string;
+        estimated_time: string;
+      };
+    };
+  }
+  
+  Expected JSON Response:
+  - A json with the estimated transportation costs and delivery times for the following transport modes **from india** to the destination country per kg rate:
+    - **Airway**: Cost and estimated delivery time
+    - **Waterway**: Cost and estimated delivery time
+    - **Railway**: Cost and estimated delivery time
+  
+  Data to Analyze:
+  ${JSON.stringify(shippingData)}
+  
+  Ensure the response is realistic, based on global logistics data, fuel costs, and distance-based estimations.`
+                  }
+                ]
+              }
+            ]
+          })
+        }
+      );
+  
+      const data = await response.json();
+      console.log("Freight Transport Costs:", data);
+      let responseText = data.candidates[0].content.parts[0].text;
+
+      // Remove the markdown code block indicators and 'json' if present
+      responseText = responseText.replace(/^```json\s*/, "");
+      responseText = responseText.replace(/```\s*$/, "");
+      console.log(responseText);
+
+      // Parse the JSON
+    
+        const parsedData = JSON.parse(responseText);
+        setShippingCostData(parsedData);
+    } catch (error) {
+      console.error("Error fetching freight data:", error);
+    }
+  };
+  useEffect(() => {
+    const data = localStorage.getItem("productData")
+    if (data) {
+      setProductData(JSON.parse(data))
+    }
+  }, [])
 
   // Mock shipments data
   const shipments: Shipment[] = [
@@ -120,7 +238,7 @@ export default function LogisticsPage() {
     {
       id: "lp-001",
       name: "DHL Express",
-      logo: "/placeholder.svg?height=40&width=80",
+      logo: "/globe.svg",
       services: ["Air Freight", "Ocean Freight", "Customs Clearance", "Warehousing"],
       rating: 4.8,
       specialties: ["Fast Delivery", "Global Coverage", "Real-time Tracking"],
@@ -128,7 +246,7 @@ export default function LogisticsPage() {
     {
       id: "lp-002",
       name: "FedEx International",
-      logo: "/placeholder.svg?height=40&width=80",
+      logo: "/globe.svg",
       services: ["Air Freight", "Express Delivery", "Customs Clearance", "Insurance"],
       rating: 4.7,
       specialties: ["Express Delivery", "Door-to-Door", "Insurance Options"],
@@ -136,7 +254,7 @@ export default function LogisticsPage() {
     {
       id: "lp-003",
       name: "UPS Worldwide",
-      logo: "/placeholder.svg?height=40&width=80",
+      logo: "/globe.svg",
       services: ["Air Freight", "Ocean Freight", "Customs Clearance", "Supply Chain Solutions"],
       rating: 4.6,
       specialties: ["Reliable Delivery", "Integrated Solutions", "Global Network"],
@@ -144,7 +262,7 @@ export default function LogisticsPage() {
     {
       id: "lp-004",
       name: "Shiprocket Global",
-      logo: "/placeholder.svg?height=40&width=80",
+      logo: "/globe.svg",
       services: ["Air Freight", "Ocean Freight", "Customs Assistance", "MSME Focused"],
       rating: 4.5,
       specialties: ["Cost-effective", "MSME Friendly", "Multiple Carrier Options"],
@@ -552,153 +670,153 @@ export default function LogisticsPage() {
                 {/* Shipping Rates Tab */}
                 <TabsContent value="rates" className="mt-6">
                   <Card>
-                    <CardHeader>
-                      <CardTitle>Shipping Rate Calculator</CardTitle>
-                      <CardDescription>Calculate shipping costs for your export products</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="origin">Origin Country</Label>
-                            <Select defaultValue="india">
-                              <SelectTrigger id="origin">
-                                <SelectValue placeholder="Select origin" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="india">India</SelectItem>
-                                <SelectItem value="bangladesh">Bangladesh</SelectItem>
-                                <SelectItem value="nepal">Nepal</SelectItem>
-                                <SelectItem value="srilanka">Sri Lanka</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="destination-country">Destination Country</Label>
-                            <Select defaultValue="usa">
-                              <SelectTrigger id="destination-country">
-                                <SelectValue placeholder="Select destination" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="usa">United States</SelectItem>
-                                <SelectItem value="germany">Germany</SelectItem>
-                                <SelectItem value="uk">United Kingdom</SelectItem>
-                                <SelectItem value="uae">United Arab Emirates</SelectItem>
-                                <SelectItem value="singapore">Singapore</SelectItem>
-                                <SelectItem value="japan">Japan</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="shipping-weight">Package Weight (kg)</Label>
-                            <Input id="shipping-weight" type="number" defaultValue="5" />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label>Package Dimensions (cm)</Label>
-                            <div className="grid grid-cols-3 gap-4">
-                              <Input placeholder="Length" defaultValue="30" />
-                              <Input placeholder="Width" defaultValue="20" />
-                              <Input placeholder="Height" defaultValue="15" />
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <Label>Shipping Type</Label>
-                            <RadioGroup defaultValue="express">
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="express" id="express" />
-                                <Label htmlFor="express">Express (3-5 days)</Label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="standard" id="standard" />
-                                <Label htmlFor="standard">Standard (7-10 days)</Label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="economy" id="economy" />
-                                <Label htmlFor="economy">Economy (15-20 days)</Label>
-                              </div>
-                            </RadioGroup>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label>Additional Services</Label>
-                            <div className="space-y-2">
-                              <div className="flex items-center space-x-2">
-                                <input type="checkbox" id="insurance" className="h-4 w-4 rounded border-gray-300" />
-                                <Label htmlFor="insurance">Shipping Insurance</Label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <input type="checkbox" id="tracking" className="h-4 w-4 rounded border-gray-300" />
-                                <Label htmlFor="tracking">Advanced Tracking</Label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <input type="checkbox" id="customs" className="h-4 w-4 rounded border-gray-300" />
-                                <Label htmlFor="customs">Customs Clearance Assistance</Label>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="pt-4">
-                            <Button className="w-full">
-                              <DollarSign className="mr-2 h-4 w-4" />
-                              Calculate Shipping Cost
-                            </Button>
-                          </div>
-                        </div>
+                  <CardHeader>
+                    <CardTitle>Shipping Rate Calculator</CardTitle>
+                    <CardDescription>Calculate shipping costs for your export products</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                      <Label htmlFor="origin">Origin Country</Label>
+                      <Select defaultValue={productData?.origin}>
+                        <SelectTrigger id="origin">
+                        <SelectValue placeholder="Select origin" />
+                        </SelectTrigger>
+                        <SelectContent>
+                        <SelectItem value="india">India</SelectItem>
+                        <SelectItem value="bangladesh">Bangladesh</SelectItem>
+                        <SelectItem value="nepal">Nepal</SelectItem>
+                        <SelectItem value="srilanka">Sri Lanka</SelectItem>
+                        </SelectContent>
+                      </Select>
                       </div>
 
-                      <Separator className="my-6" />
+                      <div className="space-y-2">
+                      <Label htmlFor="destination-country">Destination Country</Label>
+                      <Select defaultValue={"usa"}>
+                        <SelectTrigger id="destination-country">
+                        <SelectValue placeholder="Select destination" />
+                        </SelectTrigger>
+                        <SelectContent>
+                        <SelectItem value="usa">United States</SelectItem>
+                        <SelectItem value="germany">Germany</SelectItem>
+                        <SelectItem value="uk">United Kingdom</SelectItem>
+                        <SelectItem value="uae">United Arab Emirates</SelectItem>
+                        <SelectItem value="singapore">Singapore</SelectItem>
+                        <SelectItem value="japan">Japan</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      </div>
 
-                      <div className="space-y-4">
-                        <h3 className="text-lg font-medium">Estimated Shipping Costs</h3>
+                      <div className="space-y-2">
+                      <Label htmlFor="shipping-weight">Package Weight (kg)</Label>
+                      <Input id="shipping-weight" type="number" defaultValue={productData?.weight} />
+                      </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <Card>
-                            <CardHeader className="pb-2">
-                              <div className="flex items-center justify-between">
-                                <CardTitle className="text-sm font-medium">Express</CardTitle>
-                                <Plane className="h-4 w-4 text-muted-foreground" />
-                              </div>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="text-2xl font-bold">$120.50</div>
-                              <p className="text-xs text-muted-foreground">Delivery: 3-5 days</p>
-                            </CardContent>
-                          </Card>
+                      <div className="space-y-2">
+                      <Label>Package Dimensions (cm)</Label>
+                      <div className="grid grid-cols-3 gap-4">
+                        <Input placeholder="Length" defaultValue={productData?.dimensions.length} />
+                        <Input placeholder="Width" defaultValue={productData?.dimensions.width} />
+                        <Input placeholder="Height" defaultValue={productData?.dimensions.height} />
+                      </div>
+                      </div>
+                    </div>
 
-                          <Card>
-                            <CardHeader className="pb-2">
-                              <div className="flex items-center justify-between">
-                                <CardTitle className="text-sm font-medium">Standard</CardTitle>
-                                <Truck className="h-4 w-4 text-muted-foreground" />
-                              </div>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="text-2xl font-bold">$85.75</div>
-                              <p className="text-xs text-muted-foreground">Delivery: 7-10 days</p>
-                            </CardContent>
-                          </Card>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                      <Label>Shipping Type</Label>
+                      <RadioGroup defaultValue="express">
+                        <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="express" id="express" />
+                        <Label htmlFor="express">Express (3-5 days)</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="standard" id="standard" />
+                        <Label htmlFor="standard">Standard (7-10 days)</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="economy" id="economy" />
+                        <Label htmlFor="economy">Economy (15-20 days)</Label>
+                        </div>
+                      </RadioGroup>
+                      </div>
 
-                          <Card>
-                            <CardHeader className="pb-2">
-                              <div className="flex items-center justify-between">
-                                <CardTitle className="text-sm font-medium">Economy</CardTitle>
-                                <Ship className="h-4 w-4 text-muted-foreground" />
-                              </div>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="text-2xl font-bold">$42.30</div>
-                              <p className="text-xs text-muted-foreground">Delivery: 15-20 days</p>
-                            </CardContent>
-                          </Card>
+                      <div className="space-y-2">
+                      <Label>Additional Services</Label>
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                        <input type="checkbox" id="insurance" className="h-4 w-4 rounded border-gray-300" />
+                        <Label htmlFor="insurance">Shipping Insurance</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                        <input type="checkbox" id="tracking" className="h-4 w-4 rounded border-gray-300" />
+                        <Label htmlFor="tracking">Advanced Tracking</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                        <input type="checkbox" id="customs" className="h-4 w-4 rounded border-gray-300" />
+                        <Label htmlFor="customs">Customs Clearance Assistance</Label>
                         </div>
                       </div>
-                    </CardContent>
+                      </div>
+
+                      <div className="pt-4">
+                      <Button className="w-full" onClick={() => handleShippingCalculation()}>
+                        <DollarSign className="mr-2 h-4 w-4" />
+                        Calculate Shipping Cost
+                      </Button>
+                      </div>
+                    </div>
+                    </div>
+
+                    <Separator className="my-6" />
+
+                    <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Estimated Shipping Costs</h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <Card>
+                      <CardHeader className="pb-2">
+                        <div className="flex items-center justify-between">
+                        <CardTitle className="text-sm font-medium">Express</CardTitle>
+                        <Plane className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold"> {shippingCostData?.transport_modes?.airway?.cost || "$0"}</div>
+                        <p className="text-xs text-muted-foreground"> {shippingCostData?.transport_modes?.airway?.estimated_time || "Delivery: 3-5 days"}</p>
+                      </CardContent>
+                      </Card>
+
+                      <Card>
+                      <CardHeader className="pb-2">
+                        <div className="flex items-center justify-between">
+                        <CardTitle className="text-sm font-medium">Standard</CardTitle>
+                        <Train className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{shippingCostData?.transport_modes?.railway?.cost || "$0"}</div>
+                        <p className="text-xs text-muted-foreground">{shippingCostData?.transport_modes?.railway?.estimated_time || "Delivery: 7-10 days"}</p>
+                      </CardContent>
+                      </Card>
+
+                      <Card>
+                      <CardHeader className="pb-2">
+                        <div className="flex items-center justify-between">
+                        <CardTitle className="text-sm font-medium">Economy</CardTitle>
+                        <Ship className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{shippingCostData?.transport_modes?.waterway?.cost || "$0"}</div>
+                        <p className="text-xs text-muted-foreground">{shippingCostData?.transport_modes?.waterway?.estimated_time || "Delivery: 15-20 days"}</p>
+                      </CardContent>
+                      </Card>
+                    </div>
+                    </div>
+                  </CardContent>
                   </Card>
                 </TabsContent>
 
@@ -859,4 +977,6 @@ export default function LogisticsPage() {
     </div>
   )
 }
+
+
 

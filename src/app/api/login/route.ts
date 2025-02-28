@@ -82,8 +82,7 @@ export async function GET() {
     try {
         await connectDB();
         const user = await User.countDocuments({});
-        const expert = await User.countDocuments({});
-        return NextResponse.json({ user: user, expert: expert });
+        return NextResponse.json({ user: user });
     } catch (error: unknown) {
         return NextResponse.json({ error: (error as Error).message });
     }

@@ -181,8 +181,10 @@ type CertificationType = {
             {
               text: `Generate a structured JSON response with only "PriceData":
               {
+                "HSCode": string
                 "PriceData": [array of PriceData]
               }
+                - HS Code: Harmonized System code for the business product.
                 type PriceData = {
   month: string
   min: number
@@ -211,7 +213,7 @@ type CertificationType = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleRatesReceived = async (data: any) => {
     console.log("Fetching Gemini API responses...");
-
+    
     const [shippingOptions, marketData, priceData, exportReadiness] =
       await Promise.all([
         generateShippingOptions(data),
@@ -231,14 +233,9 @@ type CertificationType = {
     console.log("Market Data:", marketData);
     console.log("Price Data:", priceData);
     console.log("Export Readiness:", exportReadiness);
-    console.log(finalData);
-    navigator.clipboard.writeText(JSON.stringify(finalData, null, 2))
-      .then(() => {
-      console.log("Final data copied to clipboard");
-      })
-      .catch((err) => {
-      console.error("Failed to copy final data: ", err);
-      });
+    console.log(finalData.priceData);
+
+    localStorage.setItem("productData", JSON.stringify({ ...data, priceData }));
   };
 
   return (
