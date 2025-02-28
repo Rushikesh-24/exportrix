@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import Image from "next/image"
 
 type ShippingOption = {
   id: string
@@ -216,7 +217,9 @@ export function LogisticsComparison() {
                     )}
 
                     <div className="flex-shrink-0 w-20 h-10 bg-muted rounded flex items-center justify-center">
-                      <img
+                      <Image
+                      width={40}
+                      height={40}
                         src={option.logo || "/placeholder.svg"}
                         alt={option.provider}
                         className="max-w-full max-h-full"

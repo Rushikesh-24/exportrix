@@ -3,7 +3,6 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Upload } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -31,7 +30,19 @@ const generateHSCode = (category: string, name: string) => {
   return `${prefix}.${suffix.substring(0, 2)}.${suffix.substring(2, 4)}.${suffix.substring(4, 6)}`
 }
 
-export function ProductForm() {
+export function ProductForm({ onRatesReceived }: { onRatesReceived: (data: unknown) => void }) {
+  const sendData = () => {
+    const formData = {
+      productName,
+      category,
+      hsCode,
+      dimensions,
+      weight,
+      origin: "india",
+      description: (document.getElementById("description") as HTMLTextAreaElement).value,
+    }
+    onRatesReceived(formData)
+  }
   const [productName, setProductName] = useState("")
   const [category, setCategory] = useState("")
   const [hsCode, setHsCode] = useState("")
@@ -152,20 +163,9 @@ export function ProductForm() {
               <Textarea id="description" placeholder="Describe your product in detail" className="min-h-[100px]" />
             </div>
 
-            <div className="space-y-2">
-              <Label>Product Images</Label>
-              <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center">
-                <Upload className="h-10 w-10 text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground mb-1">Drag and drop product images here</p>
-                <p className="text-xs text-muted-foreground mb-4">PNG, JPG or WEBP (max. 5MB)</p>
-                <Button variant="outline" size="sm">
-                  Select Files
-                </Button>
-              </div>
-            </div>
 
             <div className="flex justify-end">
-              <Button type="submit">Submit Product</Button>
+              <Button type="button" onClick={()=>sendData()}>Submit Product</Button>
             </div>
           </form>
         </CardContent>

@@ -84,7 +84,7 @@ export default function ShippingRateForm({ onRatesReceived }: { onRatesReceived:
             },
           ],
         },
-      }
+      }  
 
       const response = await axios.post("/api/fedex", payload)
       onRatesReceived(response.data)
