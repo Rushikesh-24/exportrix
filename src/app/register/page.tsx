@@ -14,7 +14,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 import Image from "next/image";
 import logo from '../../../public/logo-color.svg'
-import { set } from "mongoose";
 
 interface Flashcard {
   title: string;

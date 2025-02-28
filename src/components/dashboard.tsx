@@ -1,111 +1,263 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { BarChart3, FileText, Globe, HelpCircle, Home, PlusCircle, Truck } from "lucide-react"
+import { useState } from "react";
+import Link from "next/link";
+import {
+  BarChart3,
+  FileText,
+  Globe,
+  HelpCircle,
+  Home,
+  PlusCircle,
+  Truck,
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ProductForm } from "./Product Form"
-import { ExportReadiness } from "./Export Readiness"
-import { LogisticsComparison } from "./Logistics Comparison"
-import { DocumentGenerator } from "./document-generator"
-import { MarketInsights } from "./Market Insights"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ProductForm } from "./Product Form";
+import { ExportReadiness } from "./Export Readiness";
+import { LogisticsComparison } from "./Logistics Comparison";
+import { DocumentGenerator } from "./document-generator";
+import { MarketInsights } from "./Market Insights";
 
 export default function Dashboard() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
-   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-   const [rateData, setRateData] = useState<any>(null)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [finalData, setFinalData] = useState<any>(null);
 
+  const fetchGeminiData = async (requestBody: object) => {
+    try {
+      const geminiApiKey: string = process.env.NEXT_PUBLIC_GEMINI_API || "";
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody),
+        }
+      );
 
- 
-  
-    
-   //@ts-expect-error idk kya ha iska type
- const handleRatesReceived = async(data) => {
-   setRateData(data)
-   console.log("Gemini API Response:")
-   try {
-     const geminiApiKey: string = process.env.NEXT_PUBLIC_GEMINI_API || "";
-     const requestBody = {
-       contents: [
-         {
-           parts: [
-             {
-               text: `Generate a well-structured JSON response with the following format:
- 
- {
-  "ShippingOption":array of ShippingOption,
-   "hs_code": string
-   "RoDTEP": string
- }
-  type ShippingOption = {
+      const result = await response.json();
+      // console.log("Result from Gemini:", result);
+
+      // Extract and clean response text
+      let responseText = result.candidates[0].content.parts[0].text;
+      responseText = responseText
+        .replace(/^```json\s*/, "")
+        .replace(/```\s*$/, "");
+
+      return JSON.parse(responseText);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      return null;
+    }
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const generateShippingOptions = async (data: any) => {
+    const requestBody = {
+      contents: [
+        {
+          parts: [
+            {
+              text: `Generate a structured JSON response with only "ShippingOption":
+              {
+                "ShippingOption": [array of ShippingOption]
+              }
+                type ShippingOption = {
+                id: string
+                provider: string
+                logo: string
+                price: number
+                deliveryTime: string
+                features: string[]
+                recommended?: boolean
+              }
+              Use the following product details:
+              {
+                "category": "${data.category}",
+                "description": "${data.description}",
+                "dimensions": "${data.dimensions}",
+                "origin": "India",
+                "productName": "${data.productName}",
+                "weight": "${data.weight}"
+              }`,
+            },
+          ],
+        },
+      ],
+    };
+
+    return await fetchGeminiData(requestBody);
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const generateExportReadiness = async (data: any) => {
+    const requestBody = {
+      contents: [
+        {
+          parts: [
+            {
+              text: `Generate a structured JSON response with only "ShippingOption":
+                {
+                  "Checklist": [array of ChecklistItem],
+                  "Certifications": [array of CertificationType]
+                }
+                  type ChecklistItem = {
   id: string
-  provider: string
-  logo: string
-  price: number
-  deliveryTime: string
-  features: string[]
-  recommended?: boolean
+  title: string
+  description: string
+  completed: boolean
+  required: boolean
 }
- 
- Use the following product details:
- ${JSON.stringify({
-   category:  data.category,
-   description: data.description,
-   dimensions: data.dimensions,
-   origin: "india",
-   productName: data.productName,
-   weight: data.weight,
- })}
- 
- Ensure the response is realistic, market-driven, and considers global trade factors.`,
-             },
-           ],
-         },
-       ],
-     };
- 
-     const response = await fetch(
-       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`,
-       {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(requestBody),
-       }
-     );
- 
-   
-     const result = await response.json();
-     console.log('result of gemini: ',result)
-     // Get the response text and clean it
-     let responseText = result.candidates[0].content.parts[0].text;
 
-     // Remove the markdown code block indicators and 'json' if present
-     responseText = responseText.replace(/^```json\s*/, "");
-     responseText = responseText.replace(/```\s*$/, "");
-    
-     const parsedData = JSON.parse(responseText);
-       console.log(parsedData);
-   } catch (error) {
-     console.error("Error fetching data:", error);
-     
-   } finally {
-    
-   }
-  console.log(rateData)
-  }
+type CertificationType = {
+  id: string
+  name: string
+  description: string
+  markets: string[]
+  required: boolean
+  obtained: boolean
+}
+                Use the following product details:
+                {
+                  "category": "${data.category}",
+                  "description": "${data.description}",
+                  "dimensions": "${data.dimensions}",
+                  "origin": "India",
+                  "productName": "${data.productName}",
+                  "weight": "${data.weight}"
+                }`,
+            },
+          ],
+        },
+      ],
+    };
+
+    return await fetchGeminiData(requestBody);
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const generateMarketData = async (data: any) => {
+    const requestBody = {
+      contents: [
+        {
+          parts: [
+            {
+              text: `Generate a structured JSON response with only "MarketData":
+              {
+                "MarketData": [array of MarketData]
+              }
+                type MarketData = {
+  country: string
+  demand: number
+  growth: number
+  competition: number
+  tariff: number
+  score: number
+}
+              Use the following product details:
+              {
+                "category": "${data.category}",
+                "description": "${data.description}",
+                "dimensions": "${data.dimensions}",
+                "origin": "India",
+                "productName": "${data.productName}",
+                "weight": "${data.weight}"
+              }`,
+            },
+          ],
+        },
+      ],
+    };
+
+    return await fetchGeminiData(requestBody);
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const generatePriceData = async (data: any) => {
+    const requestBody = {
+      contents: [
+        {
+          parts: [
+            {
+              text: `Generate a structured JSON response with only "PriceData":
+              {
+                "PriceData": [array of PriceData]
+              }
+                type PriceData = {
+  month: string
+  min: number
+  avg: number
+  max: number
+}
+              Use the following product details:
+              {
+                "category": "${data.category}",
+                "description": "${data.description}",
+                "dimensions": "${data.dimensions}",
+                "origin": "India",
+                "productName": "${data.productName}",
+                "weight": "${data.weight}"
+              }`,
+            },
+          ],
+        },
+      ],
+    };
+
+    return await fetchGeminiData(requestBody);
+  };
+
+  // Main function to call all requests separately
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleRatesReceived = async (data: any) => {
+    console.log("Fetching Gemini API responses...");
+
+    const [shippingOptions, marketData, priceData, exportReadiness] =
+      await Promise.all([
+        generateShippingOptions(data),
+        generateMarketData(data),
+        generatePriceData(data),
+        generateExportReadiness(data),
+      ]);
+
+    setFinalData({
+      shippingOptions,
+      marketData,
+      priceData,
+      exportReadiness,
+    });
+
+    console.log("Shipping Options:", shippingOptions);
+    console.log("Market Data:", marketData);
+    console.log("Price Data:", priceData);
+    console.log("Export Readiness:", exportReadiness);
+    console.log(finalData);
+    navigator.clipboard.writeText(JSON.stringify(finalData, null, 2))
+      .then(() => {
+      console.log("Final data copied to clipboard");
+      })
+      .catch((err) => {
+      console.error("Failed to copy final data: ", err);
+      });
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
       <div
-        className={`${isSidebarOpen ? "w-64" : "w-20"} bg-muted/40 border-r transition-all duration-300 flex flex-col`}
+        className={`${
+          isSidebarOpen ? "w-64" : "w-20"
+        } bg-muted/40 border-r transition-all duration-300 flex flex-col`}
       >
         <div className="p-4 border-b flex items-center justify-between">
-          <h2 className={`font-semibold text-lg ${!isSidebarOpen && "hidden"}`}>MSME Export Hub</h2>
-          <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="h-8 w-8">
+          <h2 className={`font-semibold text-lg ${!isSidebarOpen && "hidden"}`}>
+            MSME Export Hub
+          </h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="h-8 w-8"
+          >
             {isSidebarOpen ? (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -209,7 +361,9 @@ export default function Dashboard() {
             {isSidebarOpen && (
               <div>
                 <p className="text-sm font-medium">Export Status</p>
-                <p className="text-xs text-muted-foreground">Ready for EU Markets</p>
+                <p className="text-xs text-muted-foreground">
+                  Ready for EU Markets
+                </p>
               </div>
             )}
           </div>
@@ -238,38 +392,56 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Products Ready for Export</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Products Ready for Export
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">3</div>
-                  <p className="text-xs text-muted-foreground">+1 from last month</p>
+                  <p className="text-xs text-muted-foreground">
+                    +1 from last month
+                  </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Export Readiness Score</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Export Readiness Score
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">78%</div>
-                  <p className="text-xs text-muted-foreground">+12% from last assessment</p>
+                  <p className="text-xs text-muted-foreground">
+                    +12% from last assessment
+                  </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Potential Markets</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Potential Markets
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">5</div>
-                  <p className="text-xs text-muted-foreground">EU, US, UAE, Singapore, Japan</p>
+                  <p className="text-xs text-muted-foreground">
+                    EU, US, UAE, Singapore, Japan
+                  </p>
                 </CardContent>
               </Card>
             </div>
 
             <Tabs defaultValue="product-form">
               <TabsList className="grid grid-cols-5 w-full">
-                <TabsTrigger value="product-form">Product Submission</TabsTrigger>
-                <TabsTrigger value="export-readiness">Export Readiness</TabsTrigger>
-                <TabsTrigger value="logistics">Logistics Comparison</TabsTrigger>
+                <TabsTrigger value="product-form">
+                  Product Submission
+                </TabsTrigger>
+                <TabsTrigger value="export-readiness">
+                  Export Readiness
+                </TabsTrigger>
+                <TabsTrigger value="logistics">
+                  Logistics Comparison
+                </TabsTrigger>
                 <TabsTrigger value="documentation">Documentation</TabsTrigger>
                 <TabsTrigger value="insights">Market Insights</TabsTrigger>
               </TabsList>
@@ -277,22 +449,21 @@ export default function Dashboard() {
                 <ProductForm onRatesReceived={handleRatesReceived} />
               </TabsContent>
               <TabsContent value="export-readiness" className="mt-6">
-                <ExportReadiness />
+                <ExportReadiness data={finalData?.exportReadiness?.ShippingOption}/>
               </TabsContent>
               <TabsContent value="logistics" className="mt-6">
-                <LogisticsComparison />
+                <LogisticsComparison data={finalData?.shippingOptions}/>
               </TabsContent>
               <TabsContent value="documentation" className="mt-6">
                 <DocumentGenerator />
               </TabsContent>
               <TabsContent value="insights" className="mt-6">
-                <MarketInsights />
+                <MarketInsights marketDataServer={finalData?.marketData} priceDataServer={finalData?.priceData}/>
               </TabsContent>
             </Tabs>
           </div>
         </main>
       </div>
     </div>
-  )
+  );
 }
-

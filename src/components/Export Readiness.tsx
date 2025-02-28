@@ -25,8 +25,17 @@ type CertificationType = {
   obtained: boolean
 }
 
-export function ExportReadiness() {
-  const [checklist, setChecklist] = useState<ChecklistItem[]>([
+type ExportReadinessProps = {
+  data: {
+    Checklist: ChecklistItem[];
+    Certifications: CertificationType[];
+  };
+};
+
+export function ExportReadiness({ data }: ExportReadinessProps) {
+  const [checklist, setChecklist] = useState<ChecklistItem[]>(
+    data?.Checklist||
+    [
     {
       id: "business-registration",
       title: "Business Registration",
@@ -85,7 +94,8 @@ export function ExportReadiness() {
     },
   ])
 
-  const [certifications, setCertifications] = useState<CertificationType[]>([
+const [certifications, setCertifications] = useState<CertificationType[]>(
+  data?.Certifications || [
     {
       id: "ce-marking",
       name: "CE Marking",
@@ -126,9 +136,11 @@ export function ExportReadiness() {
       required: false,
       obtained: false,
     },
-  ])
+  ]
+)
 
   const toggleChecklistItem = (id: string) => {
+    console.log(data)
     setChecklist(checklist.map((item) => (item.id === id ? { ...item, completed: !item.completed } : item)))
   }
 
