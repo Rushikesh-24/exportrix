@@ -240,7 +240,7 @@ export default function LogisticsPage() {
             <li>
               <Link
                 href="/dashboard"
-                className="flex items-center gap-3 rounded-lg bg-primary/10 px-3 py-2 text-primary transition-all hover:text-primary"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
               >
                 <Home className="h-5 w-5" />
                 {isSidebarOpen && <span>Dashboard</span>}
@@ -258,7 +258,7 @@ export default function LogisticsPage() {
             <li>
               <Link
                 href="/logistics"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                className="flex items-center gap-3 rounded-lg bg-primary/10 px-3 py-2 text-primary transition-all hover:text-primary"
               >
                 <Truck className="h-5 w-5" />
                 {isSidebarOpen && <span>Logistics</span>}
