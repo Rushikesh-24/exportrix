@@ -354,7 +354,7 @@ Ensure the response is detailed, data-driven, and realistic, considering global 
   
   interface RoDTEPResponse {
     hs_code: string;
-    rodtep_rate: string; // Percentage as string
+    rodtep_rate: string; // Percentage a  s string
     description: string; // Brief description of the product category
   }
   
