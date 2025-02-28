@@ -24,11 +24,16 @@ type PriceData = {
   max: number
 }
 
-export function MarketInsights() {
+interface MarketInsightsProps {
+  priceDataServer: { PriceData: PriceData[] };
+  marketDataServer: { MarketData: MarketData[] };
+}
+
+export function MarketInsights({ priceDataServer, marketDataServer }: MarketInsightsProps) {
   const [category, setCategory] = useState("textiles")
 
   // Mock market data
-  const marketData: MarketData[] = [
+  const marketData: MarketData[] = marketDataServer?.MarketData ||[
     {
       country: "United States",
       demand: 85,
@@ -72,7 +77,7 @@ export function MarketInsights() {
   ]
 
   // Mock price data
-  const priceData: PriceData[] = [
+  const priceData: PriceData[] =priceDataServer?.PriceData|| [
     { month: "Jan", min: 12.5, avg: 15.8, max: 18.2 },
     { month: "Feb", min: 12.8, avg: 16.2, max: 19.0 },
     { month: "Mar", min: 13.2, avg: 16.5, max: 19.5 },

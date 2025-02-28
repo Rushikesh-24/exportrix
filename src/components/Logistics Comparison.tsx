@@ -22,7 +22,7 @@ type ShippingOption = {
   recommended?: boolean
 }
 
-export function LogisticsComparison() {
+export function LogisticsComparison({ data }: { data: { ShippingOption: ShippingOption[] } }) {
   const [destination, setDestination] = useState("usa")
   const [weight, setWeight] = useState("5")
   const [packageType, setPackageType] = useState("box")
@@ -30,7 +30,10 @@ export function LogisticsComparison() {
   // Mock shipping options based on destination and weight
   const getShippingOptions = (): ShippingOption[] => {
     // This would typically come from an API call
-    if (destination === "usa") {
+    if(data?.ShippingOption){
+      return data.ShippingOption.map((option: ShippingOption) => ({ ...option, logo: "/globe.svg" }))
+    }
+    else if (destination === "usa") {
       return [
         {
           id: "dhl-express",

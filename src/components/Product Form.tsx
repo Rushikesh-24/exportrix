@@ -11,31 +11,12 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 
-// Mock function to generate HS code based on product details
-const generateHSCode = (category: string, name: string) => {
-  console.log(name)
-  const categoryMap: Record<string, string> = {
-    textiles: "50",
-    electronics: "85",
-    food: "16",
-    handicrafts: "44",
-    jewelry: "71",
-    leather: "42",
-  }
-
-  const prefix = categoryMap[category] || "99"
-  // Generate a random 6-digit code after the prefix
-  const suffix = Math.floor(Math.random() * 900000 + 100000).toString()
-
-  return `${prefix}.${suffix.substring(0, 2)}.${suffix.substring(2, 4)}.${suffix.substring(4, 6)}`
-}
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function ProductForm({ onRatesReceived }:any) {
   const sendData = () => {
     const formData = {
       productName,
       category,
-      hsCode,
       dimensions,
       weight,
       origin: "india",
@@ -46,22 +27,15 @@ export function ProductForm({ onRatesReceived }:any) {
   }
   const [productName, setProductName] = useState("")
   const [category, setCategory] = useState("")
-  const [hsCode, setHsCode] = useState("")
   const [dimensions, setDimensions] = useState({ length: "", width: "", height: "" })
   const [weight, setWeight] = useState("")
 
   const handleCategoryChange = (value: string) => {
     setCategory(value)
-    if (productName && value) {
-      setHsCode(generateHSCode(value, productName))
-    }
   }
 
   const handleProductNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setProductName(e.target.value)
-    if (e.target.value && category) {
-      setHsCode(generateHSCode(category, e.target.value))
-    }
   }
 
   return (
@@ -110,16 +84,6 @@ export function ProductForm({ onRatesReceived }:any) {
                   placeholder="Enter weight"
                   value={weight}
                   onChange={(e) => setWeight(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="hs-code">HS Code (Auto-generated)</Label>
-                <Input
-                  id="hs-code"
-                  placeholder="HS Code will appear here"
-                  value={hsCode}
-                  readOnly
-                  className="bg-muted"
                 />
               </div>
               <div className="space-y-2">
