@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
             { status: 200 }
         );
         response.cookies.set("token", token, {
-            httpOnly: true,
+            // httpOnly: true,
         });
         return response;
     } catch (error: unknown) {

@@ -2,16 +2,28 @@
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
+import { useEffect } from 'react';
 
 const RegisterPage: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
     const router = useRouter();
-
+    
+    useEffect(() => {
+        const fetchCookie = async () => {
+            const response = await fetch("/api/cookie");
+            const data = await response.json();
+            console.log("Cookie from API:", data.success);
+            if(data.success){
+                router.push('/register')
+            }
+          };
+          fetchCookie();
+    }, []);
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
+        
         const response = await fetch('/api/register', {
             method: 'POST',
             headers: {
