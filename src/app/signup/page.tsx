@@ -16,7 +16,7 @@ const RegisterPage: React.FC = () => {
             const data = await response.json();
             console.log("Cookie from API:", data.success);
             if(data.success){
-                router.push('/register')
+                router.push('/dashboard')
             }
           };
           fetchCookie();

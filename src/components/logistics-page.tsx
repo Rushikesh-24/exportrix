@@ -309,9 +309,9 @@ export default function LogisticsPage() {
         } bg-muted/40 border-r transition-all duration-300 flex flex-col`}
       >
         <div className="p-4 border-b flex items-center justify-between">
-          <h2 className={`font-semibold text-lg ${!isSidebarOpen && "hidden"}`}>
-            MSME Export Hub
-          </h2>
+          <Link href={'/'} className={`font-semibold text-lg ${!isSidebarOpen && "hidden"}`}>
+            Exportrix
+          </Link>
           <Button
             variant="ghost"
             size="icon"
@@ -364,15 +364,6 @@ export default function LogisticsPage() {
               >
                 <Home className="h-5 w-5" />
                 {isSidebarOpen && <span>Dashboard</span>}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="#"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <PlusCircle className="h-5 w-5" />
-                {isSidebarOpen && <span>Add Product</span>}
               </Link>
             </li>
             <li>

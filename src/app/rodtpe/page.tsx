@@ -1,6 +1,6 @@
 "use client"
 
-import { BarChart3, Download, FileCheck, FileText, Globe, HelpCircle, Home, Info, PlusCircle, Truck } from "lucide-react"
+import { BarChart3, Download, FileCheck, FileText, Globe, HelpCircle, Home, Info, Truck } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -89,13 +89,13 @@ export default function RoDTEPSchemePage() {
     <div className="flex min-h-screen bg-background">
        <div
         className={`${
-          isSidebarOpen ? "w-64" : "w-20"
+          isSidebarOpen ? "min-w-64" : "w-20"
         } bg-muted/40 border-r transition-all duration-300 flex flex-col`}
       >
         <div className="p-4 border-b flex items-center justify-between">
-          <h2 className={`font-semibold text-lg ${!isSidebarOpen && "hidden"}`}>
-            MSME Export Hub
-          </h2>
+          <Link href={'/'} className={`font-semibold text-lg ${!isSidebarOpen && "hidden"}`}>
+            Exportrix
+          </Link>
           <Button
             variant="ghost"
             size="icon"
@@ -148,15 +148,6 @@ export default function RoDTEPSchemePage() {
               >
                 <Home className="h-5 w-5" />
                 {isSidebarOpen && <span>Dashboard</span>}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="#"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <PlusCircle className="h-5 w-5" />
-                {isSidebarOpen && <span>Add Product</span>}
               </Link>
             </li>
             <li>
@@ -222,7 +213,7 @@ export default function RoDTEPSchemePage() {
           </div>
         </div>
       </div>
-    <div className="grid gap-6">
+    <div className="grid gap-6 overflow-auto">
       <Card>
         <CardHeader>
           <CardTitle>RoDTEP Scheme</CardTitle>
