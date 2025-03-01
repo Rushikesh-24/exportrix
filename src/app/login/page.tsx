@@ -4,12 +4,13 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
+  const router = useRouter();
   const formRef = useRef(null);
   const titleRef = useRef(null);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
@@ -68,6 +69,24 @@ const handleSubmit = async (e: React.FormEvent<LoginForm>) => {
 
         // Form submission logic would go here
         console.log('Logging in with:', { email, password });
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        console.log('Login successful:', data);
+        if(data.success){
+            // Redirect to dashboard
+            router.push('/dashboard')
+        }
 
         // Success animation
         gsap.to(formRef.current, {
