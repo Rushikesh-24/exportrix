@@ -179,27 +179,29 @@ type CertificationType = {
         {
           parts: [
             {
-              text: `Generate a structured JSON response with only "PriceData":
-              {
-                "HSCode": string
-                "PriceData": [array of PriceData]
-              }
-                - HS Code: Harmonized System code for the business product.
-                type PriceData = {
-  month: string
-  min: number
-  avg: number
-  max: number
+              text: `Generate a structured JSON response with only "PriceData" following this fixed schema:  
+{
+  "HSCode": "string",
+  "PriceData": [
+    {
+      "month": "string",
+      "min": number,
+      "avg": number,
+      "max": number
+    }
+  ]
 }
-              Use the following product details:
-              {
-                "category": "${data.category}",
-                "description": "${data.description}",
-                "dimensions": "${data.dimensions}",
-                "origin": "India",
-                "productName": "${data.productName}",
-                "weight": "${data.weight}"
-              }`,
+Ensure that the "PriceData" array contains data for **all 12 months** (January to December) without missing values.
+Use the provided product details to determine the HS Code:
+{
+  "category": "${data.category}",
+  "description": "${data.description}",
+  "dimensions": "${data.dimensions}",
+  "origin": "India",
+  "productName": "${data.productName}",
+  "weight": "${data.weight}"
+}
+Strictly adhere to the format and return no extra information.`,
             },
           ],
         },
@@ -213,7 +215,7 @@ type CertificationType = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleRatesReceived = async (data: any) => {
     console.log("Fetching Gemini API responses...");
-    
+
     const [shippingOptions, marketData, priceData, exportReadiness] =
       await Promise.all([
         generateShippingOptions(data),
@@ -247,7 +249,10 @@ type CertificationType = {
         } bg-muted/40 border-r transition-all duration-300 flex flex-col`}
       >
         <div className="p-4 border-b flex items-center justify-between">
-        <Link href={'/'} className={`font-semibold text-lg ${!isSidebarOpen && "hidden"}`}>
+          <Link
+            href={"/"}
+            className={`font-semibold text-lg ${!isSidebarOpen && "hidden"}`}
+          >
             Exportrix
           </Link>
           <Button
@@ -304,7 +309,7 @@ type CertificationType = {
                 {isSidebarOpen && <span>Dashboard</span>}
               </Link>
             </li>
-          
+
             <li>
               <Link
                 href="/cha"
@@ -448,16 +453,21 @@ type CertificationType = {
                 <ProductForm onRatesReceived={handleRatesReceived} />
               </TabsContent>
               <TabsContent value="export-readiness" className="mt-6">
-                <ExportReadiness data={finalData?.exportReadiness?.ShippingOption}/>
+                <ExportReadiness
+                  data={finalData?.exportReadiness?.ShippingOption}
+                />
               </TabsContent>
               <TabsContent value="logistics" className="mt-6">
-                <LogisticsComparison data={finalData?.shippingOptions}/>
+                <LogisticsComparison data={finalData?.shippingOptions} />
               </TabsContent>
               <TabsContent value="documentation" className="mt-6">
                 <DocumentGenerator />
               </TabsContent>
               <TabsContent value="insights" className="mt-6">
-                <MarketInsights marketDataServer={finalData?.marketData} priceDataServer={finalData?.priceData}/>
+                <MarketInsights
+                  marketDataServer={finalData?.marketData}
+                  priceDataServer={finalData?.priceData}
+                />
               </TabsContent>
             </Tabs>
           </div>
