@@ -25,11 +25,13 @@ type PriceData = {
 }
 
 interface MarketInsightsProps {
-  priceDataServer: { PriceData: PriceData[] };
+  priceDataServer: { PriceData:PriceData[];HSCode:string };
   marketDataServer: { MarketData: MarketData[] };
 }
 
+
 export function MarketInsights({ priceDataServer, marketDataServer }: MarketInsightsProps) {
+  console.log(priceDataServer)
   const [category, setCategory] = useState("textiles")
 
   // Mock market data
@@ -77,7 +79,7 @@ export function MarketInsights({ priceDataServer, marketDataServer }: MarketInsi
   ]
 
   // Mock price data
-  const priceData: PriceData[] =priceDataServer?.PriceData|| [
+  const priceData: PriceData[] = priceDataServer?.PriceData || [
     { month: "Jan", min: 12.5, avg: 15.8, max: 18.2 },
     { month: "Feb", min: 12.8, avg: 16.2, max: 19.0 },
     { month: "Mar", min: 13.2, avg: 16.5, max: 19.5 },

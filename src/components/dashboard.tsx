@@ -232,7 +232,7 @@ type CertificationType = {
     console.log("Market Data:", marketData);
     console.log("Price Data:", priceData);
     console.log("Export Readiness:", exportReadiness);
-    console.log(finalData.priceData);
+    console.log(finalData);
 
     localStorage.setItem("productData", JSON.stringify({ ...data, priceData }));
   };
