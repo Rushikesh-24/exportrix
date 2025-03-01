@@ -25,17 +25,17 @@ type PriceData = {
 }
 
 interface MarketInsightsProps {
-  priceDataServer: { PriceData:PriceData[];HSCode:string };
+  priceDataServer: {PriceData:{ PriceData:PriceData[];HSCode:string }};
   marketDataServer: { MarketData: MarketData[] };
 }
 
 
 export function MarketInsights({ priceDataServer, marketDataServer }: MarketInsightsProps) {
-  console.log(priceDataServer)
+  console.log(priceDataServer?.PriceData)
   const [category, setCategory] = useState("textiles")
 
   // Mock market data
-  const marketData: MarketData[] = marketDataServer?.MarketData ||[
+  const marketData = marketDataServer?.MarketData ||[
     {
       country: "United States",
       demand: 85,
@@ -79,7 +79,7 @@ export function MarketInsights({ priceDataServer, marketDataServer }: MarketInsi
   ]
 
   // Mock price data
-  const priceData: PriceData[] = priceDataServer?.PriceData || [
+  const priceData = priceDataServer?.PriceData?.PriceData  || [
     { month: "Jan", min: 12.5, avg: 15.8, max: 18.2 },
     { month: "Feb", min: 12.8, avg: 16.2, max: 19.0 },
     { month: "Mar", min: 13.2, avg: 16.5, max: 19.5 },
@@ -259,7 +259,7 @@ export function MarketInsights({ priceDataServer, marketDataServer }: MarketInsi
                       <div className="font-medium text-sm">Max ($)</div>
                     </div>
                     <div className="divide-y">
-                      {priceData.slice(0, 6).map((data) => (
+                      {priceData?.slice(0, 6).map((data) => (
                         <div key={data.month} className="grid grid-cols-4 p-3">
                           <div className="text-sm">{data.month}</div>
                           <div className="text-sm">{data.min.toFixed(2)}</div>

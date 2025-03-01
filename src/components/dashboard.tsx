@@ -20,6 +20,7 @@ import { ExportReadiness } from "./Export Readiness";
 import { LogisticsComparison } from "./Logistics Comparison";
 import { DocumentGenerator } from "./document-generator";
 import { MarketInsights } from "./Market Insights";
+import toast from "react-hot-toast";
 
 export default function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -233,7 +234,7 @@ type CertificationType = {
     console.log("Price Data:", priceData);
     console.log("Export Readiness:", exportReadiness);
     console.log(finalData);
-
+    toast.success("Data fetched successfully");
     localStorage.setItem("productData", JSON.stringify({ ...data, priceData }));
   };
 
