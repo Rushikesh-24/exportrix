@@ -33,6 +33,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { useEffect } from "react"
+import Image from "next/image"
 
 type ShipmentStatus = "pending" | "in-transit" | "delivered" | "delayed"
 
@@ -394,11 +395,11 @@ export default function LogisticsPage() {
             </li>
             <li>
               <Link
-                href="#"
+                href="/rodtpe"
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
               >
                 <FileText className="h-5 w-5" />
-                {isSidebarOpen && <span>Documentation</span>}
+                {isSidebarOpen && <span>RoDTEP</span>}
               </Link>
             </li>
             <li>
@@ -605,7 +606,9 @@ export default function LogisticsPage() {
                             className="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 rounded-lg border hover:bg-muted/50 transition-colors"
                           >
                             <div className="flex-shrink-0 w-20 h-10 bg-muted rounded flex items-center justify-center">
-                              <img
+                              <Image
+                              width={40}
+                              height={40}
                                 src={provider.logo || "/placeholder.svg"}
                                 alt={provider.name}
                                 className="max-w-full max-h-full"

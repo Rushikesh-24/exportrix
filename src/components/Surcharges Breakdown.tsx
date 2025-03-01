@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card"
 import { AlertCircle } from "lucide-react"
 
 interface SurchargesBreakdownProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   surcharges: any[]
   className?: string
 }

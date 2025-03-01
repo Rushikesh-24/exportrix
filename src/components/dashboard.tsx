@@ -334,11 +334,11 @@ type CertificationType = {
             </li>
             <li>
               <Link
-                href="#"
+                href="/rodtpe"
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
               >
                 <FileText className="h-5 w-5" />
-                {isSidebarOpen && <span>Documentation</span>}
+                {isSidebarOpen && <span>RoDTEP</span>}
               </Link>
             </li>
             <li>
