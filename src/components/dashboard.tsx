@@ -143,27 +143,27 @@ type CertificationType = {
         {
           parts: [
             {
-              text: `Generate a structured JSON response with only "MarketData":
-              {
-                "MarketData": [array of MarketData]
-              }
-                type MarketData = {
-  country: string
-  demand: number
-  growth: number
-  competition: number
-  tariff: number
-  score: number
+              text: `Generate a structured JSON response containing only the "MarketData" key, structured as follows:
+{
+  "MarketData": [array of MarketData]
 }
-              Use the following product details:
-              {
-                "category": "${data.category}",
-                "description": "${data.description}",
-                "dimensions": "${data.dimensions}",
-                "origin": "India",
-                "productName": "${data.productName}",
-                "weight": "${data.weight}"
-              }`,
+Where each MarketData object has the following properties:  
+- **country** (string): The name of the country.  
+- **demand** (number): A percentage value between 0 and 100 indicating market demand.  
+- **growth** (number): A numerical value representing market growth.  
+- **competition** (number): A numerical value indicating competition level.  
+- **tariff** (number): The tariff percentage for importing the product into the country.  
+- **score** (number): A computed score based on demand, growth, competition, and tariff.  
+Use the following product details to generate relevant market insights:  
+{
+  "category": "${data.category}",
+  "description": "${data.description}",
+  "dimensions": "${data.dimensions}",
+  "origin": "India",
+  "productName": "${data.productName}",
+  "weight": "${data.weight}"
+}
+Ensure that the **demand value strictly falls within the range of 0 to 100** as it represents a percentage. Provide diverse market data insights for multiple countries.`,
             },
           ],
         },

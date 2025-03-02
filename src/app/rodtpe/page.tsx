@@ -17,7 +17,7 @@ export default function RoDTEPSchemePage() {
   const [finalData, setFinalData] = useState<{ price?: string; rate?: string }>({})
   const [formData, setFormData] = useState({
     productCategory: "",
-    hsCode: hscode,
+    hsCode: parseInt(hscode.toString()),
     fobValue: "",
     quantity: "",
   });
@@ -497,7 +497,7 @@ export default function RoDTEPSchemePage() {
                           </label>
                           <input
                             name="hsCode"
-                            type="text"
+                            type="number"
                             value={formData.hsCode}
                             onChange={handleChange}
                             placeholder="Enter HS Code"

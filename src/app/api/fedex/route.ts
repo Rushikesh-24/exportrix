@@ -1,12 +1,13 @@
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 
-const FEDEX_CLIENT_ID = "l7514be6cf18d3422b984ed2d4275b4bac";
-const FEDEX_CLIENT_SECRET = "4d7b3cc34fe847c0a75446f2d5dd83b1";
+
 const OAUTH_URL = "https://apis-sandbox.fedex.com/oauth/token";
 const RATE_URL = "https://apis-sandbox.fedex.com/rate/v1/rates/quotes";
 
 async function getAccessToken() {
+    const FEDEX_CLIENT_ID = process.env.NEXT_PUBLIC_FEDEX_CLIENT_ID||"";
+    const FEDEX_CLIENT_SECRET = process.env.NEXT_PUBLIC_FEDEX_CLIENT_SECRET || "";
     try {
         const response = await axios.post(OAUTH_URL, new URLSearchParams({
             grant_type: "client_credentials",

@@ -5,6 +5,7 @@ import { gsap } from 'gsap';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -64,8 +65,6 @@ const handleSubmit = async (e: React.FormEvent<LoginForm>) => {
     });
 
     try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
 
         // Form submission logic would go here
         console.log('Logging in with:', { email, password });
@@ -84,19 +83,10 @@ const handleSubmit = async (e: React.FormEvent<LoginForm>) => {
         const data = await response.json();
         console.log('Login successful:', data);
         if(data.success){
+          toast.success("Login successful")
             // Redirect to dashboard
             router.push('/dashboard')
         }
-
-        // Success animation
-        gsap.to(formRef.current, {
-            y: -20,
-            opacity: 0,
-            duration: 0.5,
-            onComplete: () => {
-                // Redirect or show success message
-            }
-        });
 
     } catch (error) {
         console.error('Login error:', error);
