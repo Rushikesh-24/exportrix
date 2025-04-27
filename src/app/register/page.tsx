@@ -193,7 +193,6 @@ Ensure the response is detailed, data-driven, and realistic, considering global 
       );
 
       const result = await response.json();
-      console.log('result of gemini: ',result)
       // Get the response text and clean it
       let responseText = result.candidates[0].content.parts[0].text;
 
