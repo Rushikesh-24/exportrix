@@ -35,7 +35,7 @@ export default function RoDTEPSchemePage() {
       const data = localStorage.getItem("productData")
       if (data) {
         const parsedData = JSON.parse(data) 
-        console.log(parsedData.priceData.PriceData.HSCode)
+        console.log(parsedData.priceData.PriceData.HSCode||"22071011")
         sethscode(parseInt(parsedData.priceData.PriceData.HSCode || 22071011 , 10))
         setFormData((prevFormData) => ({
           ...prevFormData,
