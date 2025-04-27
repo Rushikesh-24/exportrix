@@ -402,7 +402,7 @@ export default function Home() {
               </p>
               <div className="flex flex-col md:flex-row gap-4 justify-center z-20">
                 <Link
-                  href="/login"
+                  href="/dashboard"
                   className="hero-button bg-white text-black font-medium py-3 px-6 rounded-full hover:bg-gray-100 transition-all duration-300 flex items-center justify-center group"
                 >
                   <span>Sell as an MSME</span>
