@@ -38,7 +38,10 @@ const userSchema = new Schema(
     bussinessName:{
         type: String,
     },
-
+    isCHA: {
+        type: Boolean,
+        default: false,
+    },
     countries: {
         type: [
             {

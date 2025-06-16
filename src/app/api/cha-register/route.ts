@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import User from "@/models/user.models";
 import { connectDB } from "@/config/dbConfig";
+import CHA from "@/models/cha.models";
+
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,49 +11,48 @@ export async function POST(req: NextRequest) {
     const {
       name,
       email,
-      industry,
-      revenue,
-      employees,
-      description,
       password,
-      hs_code,
+      experience,
+      license,
+      languages,
+      serviceCapabilities,
+      specialization,
+      location,
     } = await req.json();
 
-    console.log(name, email, password);
-
-    if (!name || !email || !password) {
+    // Validate required fields
+    if (!name || !email || !password || !experience || !serviceCapabilities || !location) {
       return NextResponse.json(
-        { error: "Full name, email, and password are required" },
+        { error: "Missing required fields" },
         { status: 422 }
       );
     }
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    // Check for existing user
+    const existingUser = await CHA.findOne({ email });
     if (existingUser) {
       return NextResponse.json(
         { error: "User already exists" },
         { status: 400 }
       );
     }
-
     // Create new user
-    const newUser = new User({
+    const newUser = new CHA({
       name,
       email,
-      industry,
-      revenue,
-      employees,
-      description,
-      password: password,
-      hs_code,
-      bussinessName: "none"
+      password,
+      experience,
+      license,
+      languages,
+      services: serviceCapabilities,
+      specialization,
+      location,
     });
 
     await newUser.save();
 
-    // Generate JWT Token
-    const token = jwt.sign({ email: email }, process.env.JWT_SECRET!, {
+    // Generate JWT token
+    const token = jwt.sign({ email: newUser.email }, process.env.JWT_SECRET!, {
       expiresIn: "365d",
     });
 
@@ -61,21 +61,21 @@ export async function POST(req: NextRequest) {
         user: newUser,
         id: newUser._id,
         name: newUser.name,
-        token: token,
-        message: "User registered successfully",
+        token,
+        message: "CHA Professional registered successfully",
         success: true,
       },
       { status: 201 }
     );
 
-    // Set cookie with token
+    // Set auth cookie
     response.cookies.set("token", token, {
       httpOnly: true,
     });
 
     return response;
   } catch (error) {
-    console.error("Error at register route:", error);
+    console.error("Registration error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
