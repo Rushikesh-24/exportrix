@@ -27,6 +27,7 @@ export default function Component() {
     license: "",
     specialization: "",
     location: "",
+    category: ""
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -35,6 +36,10 @@ export default function Component() {
 
   const handleSelectChange = (value: string) => {
     setFormData({ ...formData, experience: value })
+  }
+
+  const handleCategoryChange = (value: string) => {
+    setFormData({ ...formData, category: value })
   }
 
   const addLanguage = () => {
@@ -76,8 +81,9 @@ export default function Component() {
       })
 
       const data = await res.json()
-
+      console.log(data)
       if (!res.ok) throw new Error(data.error || "Something went wrong")
+      localStorage.setItem("user", JSON.stringify(data.user))
       push(`/cha/${data.id}`)
       
       // Optionally redirect: router.push('/dashboard') if you’re using next/navigation
@@ -113,6 +119,23 @@ export default function Component() {
               <div className="space-y-2">
                 <Label htmlFor="password">Password *</Label>
                 <Input name="password" type="password" value={formData.password} onChange={handleChange} required />
+              </div>
+
+              <div className="space-y-2">
+                            <Label htmlFor="product-category">Product Category *</Label>
+                            <Select defaultValue="textiles" value={formData.category} onValueChange={handleCategoryChange} required>
+                              <SelectTrigger id="product-category">
+                                <SelectValue placeholder="Select category" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="textiles">Textiles & Garments</SelectItem>
+                                <SelectItem value="electronics">Electronics</SelectItem>
+                                <SelectItem value="food">Food Products</SelectItem>
+                                <SelectItem value="handicrafts">Handicrafts</SelectItem>
+                                <SelectItem value="jewelry">Jewelry</SelectItem>
+                                <SelectItem value="leather">Leather Goods</SelectItem>
+                              </SelectContent>
+                            </Select>
               </div>
 
               {/* Experience */}

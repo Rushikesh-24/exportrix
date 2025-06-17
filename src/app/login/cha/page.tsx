@@ -68,7 +68,7 @@ const handleSubmit = async (e: React.FormEvent<LoginForm>) => {
 
         // Form submission logic would go here
         console.log('Logging in with:', { email, password });
-        const response = await fetch('/api/login', {
+        const response = await fetch('/api/cha-login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -114,9 +114,9 @@ const handleSubmit = async (e: React.FormEvent<LoginForm>) => {
             ref={titleRef} 
             className="text-3xl font-bold text-center text-black"
           >
-            MSME Login 🏭 
+            CHA Login 🤵
           </h1>
-          <p className='mb-6 mt-2 text-center'>Are you a CHA? <Link href="/login/cha" className='font-bold'>Login as CHA</Link></p>
+          <p className='mb-6 mt-2 text-center'>Are you a MSME? <Link href="/login" className='font-bold'>Login as MSME</Link></p>
           <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label 

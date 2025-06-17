@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -7,11 +8,10 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   // Only apply middleware to protected routes
   if (protectedRoutes.some((route) => pathname.startsWith(route))) {
-    const res = await fetch(`http://localhost:3000/api/cookie`);
-
-    const data = await res.json();
-    console.log(data)
-    if (!data.success) {
+    const cookieStore = await cookies();
+    const authToken = cookieStore.get("token")?.value;
+    console.log("Auth Token:", authToken);
+    if (!authToken) {
       const loginUrl = new URL('/login', request.url);
       return NextResponse.redirect(loginUrl);
     }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import User from "@/models/user.models";
 import { connectDB } from "@/config/dbConfig";
+import CHA from "@/models/cha.models";
 
 
 export async function POST(req: NextRequest) {
@@ -9,7 +9,6 @@ export async function POST(req: NextRequest) {
         await connectDB();
 
         const { email, password } = await req.json();
-        console.log(email, password);
 
         if (!email || !password) {
             return NextResponse.json(
@@ -18,7 +17,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const user = await User.findOne({ email: email });
+        const user = await CHA.findOne({ email: email });
 
         if (!user) {
             return NextResponse.json(
@@ -40,13 +39,6 @@ export async function POST(req: NextRequest) {
             _id: user._id,
             name: user.name,
             email: email ,
-            industry: user.industry,
-            revenue: user.revenue,
-            employees: user.employees,
-            description: user.description,
-            hs_code: user.hs_code,
-            
-
          }, process.env.JWT_SECRET!, {
             expiresIn: "365d",
         });
@@ -81,7 +73,7 @@ export async function POST(req: NextRequest) {
 export async function GET() {
     try {
         await connectDB();
-        const user = await User.countDocuments({});
+        const user = await CHA.countDocuments({});
         return NextResponse.json({ user: user });
     } catch (error: unknown) {
         return NextResponse.json({ error: (error as Error).message });

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import {
   BarChart3,
@@ -21,23 +21,45 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 type CustomHouseAgent = {
-  id: string
+  _id: string
   name: string
   logo: string
-  specialties: string[]
+  services: string[]
   rating: number
   experience: string
-  price: string
+  license: string
   location: string
-  description: string
+  specialization: string
 }
 
 export default function ChaPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [customHouseAgents, setCustomHouseAgents] = useState<CustomHouseAgent[]>()
+  const { push } = useRouter()
+  const getCHAS = async () => {
+    try {
+      const response = await fetch('/api/recommended-chas');
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      setCustomHouseAgents(data.data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching CHAs:', error);
+      return [];
+    }
+  }
 
+  useEffect(() => {
+    getCHAS();
+  },[])
+  
   // Add mock CHA data
+  /*
   const customHouseAgents: CustomHouseAgent[] = [
     {
       id: "cha-001",
@@ -84,7 +106,7 @@ export default function ChaPage() {
       description: "Focused on handicraft exports with expertise in geographical indication certificates and cultural goods documentation."
     }
   ];
-
+  */
   return (
     <div  className="flex min-h-screen bg-background">
       <div className="flex min-h-screen bg-background">
@@ -332,12 +354,13 @@ export default function ChaPage() {
 
                       <div className="space-y-6">
                         <h3 className="text-lg font-medium">Recommended Custom House Agents</h3>
-                        {customHouseAgents.map((agent) => (
+                        {customHouseAgents?.map((agent) => (
                           <div 
-                            key={agent.id} 
-                            className="flex flex-col md:flex-row items-start gap-4 p-4 rounded-lg border hover:bg-muted/50 transition-colors"
+                            key={agent._id}
+                            onClick={() => push(`/cha/${agent._id}`)} 
+                            className="cursor-pointer flex flex-col md:flex-row items-start gap-4 p-4 rounded-lg border hover:bg-muted/50 transition-colors"
                           >
-                            <div className="flex-shrink-0 w-20 h-10 bg-muted rounded flex items-center justify-center">
+                            <div className="flex-shrink-0 w-20 h-20 bg-muted rounded flex items-center justify-center">
                               <Image
                               height={40}
                               width={40}
@@ -361,18 +384,18 @@ export default function ChaPage() {
                                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                     </svg>
                                   ))}
-                                  <span className="ml-1 text-xs font-medium">{agent.rating.toFixed(1)}</span>
+                                  <span className="ml-1 text-xs font-medium">{agent.rating ? agent.rating.toFixed(1) : 0}</span>
                                 </div>
-                                <Badge variant="outline" className="ml-2">{agent.experience}</Badge>
-                                <Badge variant="secondary" className="ml-auto">{agent.price}</Badge>
+                                <Badge variant="outline" className="ml-2">{agent.experience} years</Badge>
+                                <Badge variant="secondary" className="ml-auto">{agent.license}</Badge>
                               </div>
 
-                              <p className="text-sm text-muted-foreground mt-2">{agent.description}</p>
+                              <p className="text-sm text-muted-foreground mt-2">{agent.specialization}</p>
 
                               <div className="mt-3">
                                 <p className="text-sm font-medium">Specialties:</p>
                                 <div className="flex flex-wrap gap-2 mt-1">
-                                  {agent.specialties.map((specialty, index) => (
+                                  {agent.services.map((specialty, index) => (
                                     <Badge key={index} variant="outline" className="bg-muted">
                                       {specialty}
                                     </Badge>

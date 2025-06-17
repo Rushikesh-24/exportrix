@@ -12,6 +12,7 @@ export async function POST(req: NextRequest) {
       name,
       email,
       password,
+      category,
       experience,
       license,
       languages,
@@ -42,11 +43,13 @@ export async function POST(req: NextRequest) {
       email,
       password,
       experience,
+      category,
       license,
       languages,
       services: serviceCapabilities,
       specialization,
       location,
+      reviews: 0,
     });
 
     await newUser.save();

@@ -11,7 +11,7 @@ import { MapPin, Star, Award, ChefHat, Calendar, Phone, Mail, MessageCircle, Shi
 
 export default function Component() {
   const params = useParams()
-  const id = params.id as string
+  const id = params?.id as string
   console.log("Profile ID:", id)
   const [profileData, setProfileData] = useState<any>(null)
 
@@ -38,7 +38,7 @@ export default function Component() {
               <AvatarFallback className="text-2xl">
                 {profileData.name
                   .split(" ")
-                  .map((n) => n[0])
+                  .map((n:string) => n[0])
                   .join("")}
               </AvatarFallback>
             </Avatar>
@@ -76,7 +76,7 @@ export default function Component() {
                 </Button>
                 <Button variant="outline" size="lg" className="flex items-center gap-2">
                   <MessageCircle className="h-4 w-4" />
-                  Message
+                  Mssagee
                 </Button>
               </div>
             </div>
@@ -110,7 +110,7 @@ export default function Component() {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
-                  {profileData.services?.map((capability, index) => (
+                  {profileData.services?.map((capability:string, index:number) => (
                     <Badge key={index} variant="secondary" className="text-sm py-1 px-3">
                       {capability}
                     </Badge>
@@ -154,7 +154,7 @@ export default function Component() {
                 <div>
                   <h4 className="font-medium text-gray-900 mb-1">Languages</h4>
                   <div className="flex flex-wrap gap-1">
-                    {profileData.languages?.map((lang, index) => (
+                    {profileData.languages?.map((lang:string, index:number) => (
                       <Badge key={index} variant="outline" className="text-xs">
                         {lang}
                       </Badge>
